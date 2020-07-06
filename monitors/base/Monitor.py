@@ -33,7 +33,7 @@ class Monitor(BaseMonitor):
         return monitor_thread
 
     # 初始化
-    def __init__(self, name, tgt, tgt_name, cfg, **cfg_mod):
+    def __init__(self, name: str, tgt: str, tgt_name: str, cfg: dict, **cfg_mod):
         super().__init__(name, tgt, tgt_name, cfg, **cfg_mod)
         self.cfg = copy.deepcopy(cfg)
 
@@ -46,7 +46,7 @@ class Monitor(BaseMonitor):
         self.stop_now = False
 
     # 重设submonitorconfig名字并初始化
-    def submonitorconfig_setname(self, submonitor_config_name):
+    def submonitorconfig_setname(self, submonitor_config_name: str):
         self.submonitor_config_name = submonitor_config_name
         submonitor_config = getattr(
             self, submonitor_config_name, {"submonitor_dic": {}}
@@ -54,7 +54,7 @@ class Monitor(BaseMonitor):
         setattr(self, self.submonitor_config_name, submonitor_config)
 
     # 向submonitorconfig添加预设的config
-    def submonitorconfig_addconfig(self, config_name, config):
+    def submonitorconfig_addconfig(self, config_name: str, config: dict):
         submonitor_config = getattr(self, self.submonitor_config_name)
         submonitor_config[config_name] = config
         setattr(self, self.submonitor_config_name, submonitor_config)
@@ -62,11 +62,11 @@ class Monitor(BaseMonitor):
     # 向submonitorconfig的submonitor_dic中添加子线程信息以启动子线程
     def submonitorconfig_addmonitor(
         self,
-        monitor_name,
-        monitor_class,
-        monitor_target,
-        monitor_target_name,
-        monitor_config_name,
+        monitor_name: str,
+        monitor_class: str,
+        monitor_target: str,
+        monitor_target_name: str,
+        monitor_config_name: str,
         **config_mod,
     ):
         submonitor_config = getattr(self, self.submonitor_config_name)
@@ -85,7 +85,7 @@ class Monitor(BaseMonitor):
         setattr(self, self.submonitor_config_name, submonitor_config)
 
     # 从submonitorconfig的submonitor_dic中删除对应的子线程
-    def submonitorconfig_delmonitor(self, monitor_name):
+    def submonitorconfig_delmonitor(self, monitor_name: str):
         submonitor_config = getattr(self, self.submonitor_config_name)
         if monitor_name in submonitor_config["submonitor_dic"]:
             submonitor_config["submonitor_dic"].pop(monitor_name)

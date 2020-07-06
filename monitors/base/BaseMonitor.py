@@ -1,9 +1,10 @@
 import threading
 import time
+from pathlib import Path
 
 # 仅从cfg和cfg_mod中获取参数，不会启动子监视器
 class BaseMonitor(threading.Thread):
-    def __init__(self, name, tgt, tgt_name, cfg, **cfg_mod):
+    def __init__(self, name: str, tgt: str, tgt_name: str, cfg: dict, **cfg_mod):
         super().__init__()
         self.name = name
         self.tgt = tgt
@@ -22,6 +23,19 @@ class BaseMonitor(threading.Thread):
             setattr(self, var, cfg_mod[var])
 
         self.stop_now = False
+
+    def initialize_log(
+        self, cls_name: str, sub_dir: bool = False, has_chat: bool = False
+    ):
+        logpath = Path(f"./log/{cls_name}")
+        if sub_dir:
+            logpath = logpath / self.tgt_name
+
+        self.logpath = logpath / f"{self.name}.txt"
+        if has_chat:
+            self.chatpah = logpath / f"{self.name}_chat.txt"
+        if not logpath.exists():
+            logpath.mkdir(parents=True)
 
     def checksubmonitor(self):
         pass

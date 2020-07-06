@@ -44,11 +44,12 @@ class TwitcastChat(BaseMonitor):
     def __init__(self, name, tgt, tgt_name, cfg, **config_mod):
         super().__init__(name, tgt, tgt_name, cfg, **config_mod)
 
-        logpath = Path(f"./log/{self.__class__.__name__}/{self.tgt_name}")
-        self.logpath = logpath / f"{self.name}.txt"
-        self.chatpah = logpath / f"{self.name}_chat.txt"
-        if not logpath.exists():
-            logpath.mkdir(parents=True)
+        # logpath = Path(f"./log/{self.__class__.__name__}/{self.tgt_name}")
+        # self.logpath = logpath / f"{self.name}.txt"
+        # self.chatpah = logpath / f"{self.name}_chat.txt"
+        # if not logpath.exists():
+        #     logpath.mkdir(parents=True)
+        super().initialize_log(self.__class__.__name__, True, True)
 
         self.chat_id_old = 0
         self.pushpunish = {}

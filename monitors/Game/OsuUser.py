@@ -67,10 +67,11 @@ class OsuUser(BaseMonitor):
     def __init__(self, name, tgt, tgt_name, cfg, **config_mod):
         super().__init__(name, tgt, tgt_name, cfg, **config_mod)
 
-        logpath = Path(f"./log/{self.__class__.__name__}")
-        self.logpath = logpath / f"{self.name}.txt"
-        if not logpath.exists():
-            logpath.mkdir(parents=True)
+        # logpath = Path(f"./log/{self.__class__.__name__}")
+        # self.logpath = logpath / f"{self.name}.txt"
+        # if not logpath.exists():
+        #     logpath.mkdir(parents=True)
+        super().initialize_log(self.__class__.__name__, False, False)
 
         self.is_firstrun = True
         self.userdata_dic = {}

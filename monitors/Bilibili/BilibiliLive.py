@@ -37,10 +37,11 @@ class BilibiliLive(Monitor):
     def __init__(self, name, tgt, tgt_name, cfg, **config_mod):
         super().__init__(name, tgt, tgt_name, cfg, **config_mod)
 
-        logpath = Path(f"./log/{self.__class__.__name__}")
-        self.logpath = logpath / f"{self.name}.txt"
-        if not logpath.exists():
-            logpath.mkdir(parents=True)
+        # logpath = Path(f"./log/{self.__class__.__name__}")
+        # self.logpath = logpath / f"{self.name}.txt"
+        # if not logpath.exists():
+        #     logpath.mkdir(parents=True)
+        super().initialize_log(self.__class__.__name__, False, False)
 
         # 重新设置submonitorconfig用于启动子线程，并添加频道id信息到子进程使用的cfg中
         self.submonitorconfig_setname("bilibilichat_submonitor_cfg")
