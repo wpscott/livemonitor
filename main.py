@@ -1,4 +1,4 @@
-from .monitors.Monitor import Monitor
+from .monitors import Monitor
 
 from pathlib import Path
 import json

@@ -1,4 +1,4 @@
-from ..BaseMonitor import BaseMonitor
+from ..base import BaseMonitor
 from ..Utils import timestamp, writelog, addpushcolordic, getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
