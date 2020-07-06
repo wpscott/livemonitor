@@ -8,9 +8,9 @@
 # 环境依赖
 ## 检测脚本本体
 ##### 安装方法
-在命令行中运行`pip3 install requests; pip3 install bs4; pip3 install lxml; pip3 install websocket-client`安装脚本依赖的python库，将spider.py和spider.json文件下载到相同的目录（注意至少还需要在配置文件中设置cookies和要推送的qq账户才能正常运行）。
+在命令行中运行`pip3 install -r requirements.txt`安装脚本依赖的python库，将main.py、monitors文件夹和spider.json文件下载到相同的目录（注意至少还需要在配置文件中设置cookies和要推送的qq账户才能正常运行）。
 ##### 启动方法
-  在命令行中运行`python3 spider.py`，按照提示选择配置文件。
+  在命令行中运行`python3 main.py`，按照提示选择配置文件。
   
 ## qq推送(可选)
 ##### 安装方法
