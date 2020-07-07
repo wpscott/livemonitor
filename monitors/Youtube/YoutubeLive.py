@@ -1,10 +1,7 @@
 from ..base import Monitor
 from ..Utils import (
     timestamp,
-    addpushcolordic,
-    getpushcolordic,
     waittime,
-    pushall,
 )
 
 from .YoutubeConstants import Headers
@@ -258,17 +255,17 @@ class YoutubeLive(Monitor):
                 video_description = ""
 
             # 计算推送力度
-            pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
-            pushcolor_worddic = getpushcolordic(
+            pushcolor_vipdic = Monitor.getpushcolordic(self.tgt, self.vip_dic)
+            pushcolor_worddic = Monitor.getpushcolordic(
                 f"{self.videodic[video_id]['video_title']}\n{video_description}",
                 self.word_dic,
             )
-            pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+            pushcolor_dic = Monitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
             # 进行推送
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} {self.videodic[video_id]['video_type']}{self.videodic[video_id]['video_status']}】\n标题：{self.videodic[video_id]['video_title']}\n时间：{waittime(self.videodic[video_id]['video_timestamp'])}\n网址：https://www.youtube.com/watch?v={video_id}"
-                pushall(pushtext, pushcolor_dic, self.push_list)
+                self.pushall(pushtext, pushcolor_dic, self.push_list)
                 self.log_info(
                     f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )

@@ -1,11 +1,5 @@
 from ..base import BaseMonitor
-from ..Utils import (
-    DateTimeFormat,
-    timestamp,
-    addpushcolordic,
-    getpushcolordic,
-    pushall,
-)
+from ..Utils import DateTimeFormat
 
 from datetime import datetime
 import requests
@@ -91,13 +85,17 @@ class TwitcastChat(BaseMonitor):
             is_chat=True,
         )
 
-        pushcolor_vipdic = getpushcolordic(chat["chat_screenname"], self.vip_dic)
-        pushcolor_worddic = getpushcolordic(chat["chat_text"], self.word_dic)
-        pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(
+            chat["chat_screenname"], self.vip_dic
+        )
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
+            chat["chat_text"], self.word_dic
+        )
+        pushcolor_dic = BaseMonitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         if pushcolor_dic:
             pushcolor_dic = self.punish(self.tgt_channel, pushcolor_dic)
 
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat['chat_name']}({chat['chat_screenname']})\n内容：{chat['chat_text']}\n时间：{datetime.utcfromtimestamp(chat['chat_timestamp_float']):DateTimeFormat}\n网址：https://twitcasting.tv/{self.tgt_channel}"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

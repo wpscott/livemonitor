@@ -1,5 +1,5 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now
 
 import requests
 import time
@@ -98,9 +98,9 @@ class SteamUser(BaseMonitor):
             time.sleep(self.interval)
 
     def push(self, pushtext):
-        pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(self.tgt, self.vip_dic)
         pushcolor_dic = pushcolor_vipdic
 
         if pushcolor_dic:
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

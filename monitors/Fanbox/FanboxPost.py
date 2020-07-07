@@ -1,5 +1,5 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat
 
 from .FanboxConstants import Headers
 
@@ -95,11 +95,13 @@ class FanboxPost(BaseMonitor):
 
     def push(self, post_id, postdic):
         post = postdic[post_id]
-        pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
-        pushcolor_worddic = getpushcolordic(post["post_text"], self.word_dic)
-        pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(self.tgt, self.vip_dic)
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
+            post["post_text"], self.word_dic
+        )
+        pushcolor_dic = BaseMonitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 社区帖子】\n标题：{post['post_title']}\n内容：{post['post_text'][0:2500]}\n类型：{post['post_type']}\n档位：{post['post_fee']}\n时间：{datetime.utcfromtimestamp(post['post_publishtimestamp']):DateTimeFormat}\n网址：https://{self.tgt}.fanbox.cc/posts/{post_id}"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

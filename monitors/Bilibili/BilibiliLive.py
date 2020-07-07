@@ -1,5 +1,5 @@
 from ..base import Monitor
-from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat
 
 from datetime import datetime
 import requests
@@ -103,13 +103,15 @@ class BilibiliLive(Monitor):
     def push(self, live_id):
         live = self.livedic[live_id]
         if live["live_status"] in self.status_push:
-            pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
-            pushcolor_worddic = getpushcolordic(live["live_title"], self.word_dic)
-            pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+            pushcolor_vipdic = Monitor.getpushcolordic(self.tgt, self.vip_dic)
+            pushcolor_worddic = Monitor.getpushcolordic(
+                live["live_title"], self.word_dic
+            )
+            pushcolor_dic = Monitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播{live['live_status']}】\n标题：{live['live_title']}\n时间：{datetime.utcfromtimestamp(live_id):DateTimeFormat}\n网址：https://live.bilibili.com/{self.tgt}"
-                pushall(pushtext, pushcolor_dic, self.push_list)
+                self.pushall(pushtext, pushcolor_dic, self.push_list)
                 self.log_info(
                     f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )

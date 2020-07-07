@@ -1,11 +1,5 @@
 from ..base import BaseMonitor, LogLevel
-from ..Utils import (
-    DateTimeFormat,
-    timestamp,
-    addpushcolordic,
-    getpushcolordic,
-    pushall,
-)
+from ..Utils import DateTimeFormat
 
 from datetime import datetime
 import requests
@@ -218,7 +212,7 @@ class BilibiliChat(BaseMonitor):
         # 推送剩余的弹幕
         if self.simple_mode != "False":
             if self.pushtext_old:
-                pushall(self.pushtext_old, self.pushcolor_dic_old, self.push_list)
+                self.pushall(self.pushtext_old, self.pushcolor_dic_old, self.push_list)
                 self.log_info(
                     f'"{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
                 )
@@ -274,16 +268,20 @@ class BilibiliChat(BaseMonitor):
             is_chat=True,
         )
 
-        pushcolor_vipdic = getpushcolordic(chat["chat_userid"], self.vip_dic)
-        pushcolor_worddic = getpushcolordic(chat["chat_text"], self.word_dic)
-        pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(
+            chat["chat_userid"], self.vip_dic
+        )
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
+            chat["chat_text"], self.word_dic
+        )
+        pushcolor_dic = BaseMonitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         if pushcolor_dic:
             pushcolor_dic = self.punish(self.tgt, pushcolor_dic)
 
             if self.simple_mode == "False":
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat['chat_username']}({chat['chat_userid']})\n内容：{chat['chat_text']}\n类型：{chat['chat_type']}\n时间：{datetime.utcfromtimestamp(chat['chat_timestamp_float']):DateTimeFormat}\n网址：https://live.bilibili.com/{self.tgt}"
-                pushall(pushtext, pushcolor_dic, self.push_list)
+                self.pushall(pushtext, pushcolor_dic, self.push_list)
                 self.log_info(
                     f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )
@@ -298,7 +296,9 @@ class BilibiliChat(BaseMonitor):
                         self.pushcolor_dic_old[color] = pushcolor_dic[color]
 
                 if self.pushcount % self.simple_mode == 0:
-                    pushall(self.pushtext_old, self.pushcolor_dic_old, self.push_list)
+                    self.pushall(
+                        self.pushtext_old, self.pushcolor_dic_old, self.push_list
+                    )
                     self.log_info(
                         f'"{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
                     )
@@ -309,5 +309,5 @@ class BilibiliChat(BaseMonitor):
                     self.pushtext_old += "\n"
 
     def stop(self):
-        self.stop_now = True
+        super().stop()
         self.ws.close()

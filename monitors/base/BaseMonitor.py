@@ -42,12 +42,12 @@ class BaseMonitor(threading.Thread):
             self.chatpath = logpath / f"{self.name}_chat.txt"
         if not logpath.exists():
             logpath.mkdir(parents=True)
-    
+
     def initialize_punishment(self):
         self.regen = getattr(self, "regen", "False")
         self.regen_amount = getattr(self, "regen_amount", 1)
         self.regen_time = 0
-    
+
     def punish(self, key: str, pushcolor_dic: dict) -> dict:
         # 推送惩罚恢复
         if self.regen != "False":

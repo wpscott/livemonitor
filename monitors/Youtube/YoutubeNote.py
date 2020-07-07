@@ -1,5 +1,4 @@
 from ..base import BaseMonitor
-from ..Utils import getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
 
@@ -131,12 +130,12 @@ class YoutubeNote(BaseMonitor):
             time.sleep(self.interval)
 
     def push(self, note_id, notedic):
-        pushcolor_worddic = getpushcolordic(
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
             notedic[note_id]["note_text"], self.word_dic
         )
         pushcolor_dic = pushcolor_worddic
 
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 订阅通知】\n内容：{notedic[note_id]['note_text']}\n时间：{notedic[note_id]['note_time']}\n网址：https://www.youtube.com/watch?v={notedic[note_id]['note_videoid']}"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

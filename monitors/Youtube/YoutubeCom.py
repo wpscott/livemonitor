@@ -1,5 +1,4 @@
 from ..base import BaseMonitor
-from ..Utils import addpushcolordic, getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
 
@@ -82,14 +81,14 @@ class YoutubeCom(BaseMonitor):
             time.sleep(self.interval)
 
     def push(self, post_id, postdic):
-        pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
-        pushcolor_worddic = getpushcolordic(
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(self.tgt, self.vip_dic)
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
             postdic[post_id]["post_text"], self.word_dic
         )
-        pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+        pushcolor_dic = BaseMonitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         # 进行推送
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 社区帖子】\n内容：{postdic[post_id]['post_text'][0:3000]}\n时间：{postdic[post_id]['post_time']}\n网址：https://www.youtube.com/post/{post_id}"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

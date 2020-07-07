@@ -1,5 +1,5 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat
 from .TwitterUser import TwitterUser
 
 from .TwitterConstants import TweetParams, Headers
@@ -129,13 +129,15 @@ class TwitterTweet(BaseMonitor):
     def push(self, tweet_id, tweetdic):
         tweet = tweetdic[tweet_id]
         # 获取用户推特时大小写不敏感，但检测用户和提及的时候大小写敏感
-        pushcolor_vipdic = getpushcolordic(
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(
             f"{self.tgt}\n{tweet['tweet_mention']}", self.vip_dic
         )
-        pushcolor_worddic = getpushcolordic(tweet["tweet_text"], self.word_dic)
-        pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+        pushcolor_worddic = BaseMonitor.getpushcolordic(
+            tweet["tweet_text"], self.word_dic
+        )
+        pushcolor_dic = BaseMonitor.addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 推特{tweet['tweet_type']}】\n内容：{tweet['tweet_text']}\n媒体：{tweet['tweet_media']}\n链接：{tweet['tweet_urls']}\n时间：{datetime.utcfromtimestamp(tweet['tweet_timestamp']):DateTimeFormat}\n网址：https://twitter.com/{self.tgt}/status/{tweet_id}"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

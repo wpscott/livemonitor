@@ -1,5 +1,4 @@
 from ..base import BaseMonitor
-from ..Utils import addpushcolordic, getpushcolordic, pushall
 from ..Youtube.YoutubeLive import YoutubeLive
 
 from .TwitterConstants import SearchParams, Headers
@@ -143,15 +142,19 @@ class TwitterSearch(BaseMonitor):
             is_liveorvideo = True
 
         if is_live and is_liveorvideo:
-            pushcolor_vipdic = getpushcolordic(
+            pushcolor_vipdic = BaseMonitor.getpushcolordic(
                 f"{self.tgt}\n{tweet['tweet_metion']}", self.vip_dic
             )
-            pushcolor_worddic = getpushcolordic(tweet["tweet_text"], self.word_dic)
-            pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
+            pushcolor_worddic = BaseMonitor.getpushcolordic(
+                tweet["tweet_text"], self.word_dic
+            )
+            pushcolor_dic = BaseMonitor.addpushcolordic(
+                pushcolor_vipdic, pushcolor_worddic
+            )
 
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 推特】\n内容：{tweet['tweet_text']}\n媒体：{tweet['tweet_media']}\n链接：{tweet['tweet_urls']}\n时间：{datetime.utcfromtimestamp(tweet['tweet_timestamp']):%Y-%m%d %H:%M:%S %Z}\n网址：https://twitter.com/a/status/{tweet_id}"
-                pushall(pushtext, pushcolor_dic, self.push_list)
+                self.pushall(pushtext, pushcolor_dic, self.push_list)
                 self.log_info(
                     f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )

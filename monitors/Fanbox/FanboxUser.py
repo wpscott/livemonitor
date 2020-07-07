@@ -1,5 +1,5 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now
 
 from .FanboxConstants import Headers
 
@@ -79,10 +79,10 @@ class FanboxUser(BaseMonitor):
             time.sleep(self.interval)
 
     def push(self, pushtext_body):
-        pushcolor_vipdic = getpushcolordic(self.tgt, self.vip_dic)
+        pushcolor_vipdic = BaseMonitor.getpushcolordic(self.tgt, self.vip_dic)
         pushcolor_dic = pushcolor_vipdic
 
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 数据改变】\n{pushtext_body}\n时间：{now():DateTimeFormat}网址：https://{self.tgt}.fanbox.cc/"
-            pushall(pushtext, pushcolor_dic, self.push_list)
+            self.pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}')
