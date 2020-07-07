@@ -1,9 +1,8 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, writelog, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
 
 from .TwitterConstants import Headers
 
-from pathlib import Path
 import requests
 import time
 
@@ -72,9 +71,8 @@ class TwitterUser(BaseMonitor):
                 )
                 if self.is_firstrun:
                     self.userdata_dic = user_datadic_new
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" gettwitteruser {self.tgt}: {user_datadic_new}',
+                    self.log_info(
+                        f'"{self.name}" gettwitteruser {self.tgt}: {user_datadic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -97,14 +95,9 @@ class TwitterUser(BaseMonitor):
 
                     if pushtext_body:
                         self.push(pushtext_body)
-                writelog(
-                    self.logpath, f'[Success] "{self.name}" gettwitteruser {self.tgt}'
-                )
+                self.log_success(f'"{self.name}" gettwitteruser {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" gettwitteruser {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" gettwitteruser {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, pushtext_body):
@@ -114,7 +107,6 @@ class TwitterUser(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 数据改变】\n{pushtext_body}\n时间：{now():DateTimeFormat}\n网址：https://twitter.com/{self.tgt}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+            self.log_info(
+                self.logpath, f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
             )

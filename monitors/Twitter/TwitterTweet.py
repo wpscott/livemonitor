@@ -1,10 +1,9 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
 from .TwitterUser import TwitterUser
 
 from .TwitterConstants import TweetParams, Headers
 
-from pathlib import Path
 from datetime import datetime
 import time
 import requests
@@ -90,19 +89,12 @@ class TwitterTweet(BaseMonitor):
                         self.tgt, self.cookies, self.proxy
                     )
                     self.tgt_restid = tgt_dic["rest_id"]
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" gettwitteruser {self.tgt}: {self.tgt_restid}',
+                    self.log_info(
+                        f'"{self.name}" gettwitteruser {self.tgt}: {self.tgt_restid}',
                     )
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" gettwitteruser {self.tgt}',
-                    )
+                    self.log_success(f'"{self.name}" gettwitteruser {self.tgt}',)
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" gettwitteruser {self.tgt}: {e}',
-                    )
+                    self.log_error(f'"{self.name}" gettwitteruser {self.tgt}: {e}',)
                     time.sleep(5)
                     continue
 
@@ -115,9 +107,8 @@ class TwitterTweet(BaseMonitor):
                     if self.is_firstrun:
                         if tweetdic_new:
                             self.tweet_id_old = sorted(tweetdic_new, reverse=True)[0]
-                        writelog(
-                            self.logpath,
-                            f'[Info] "{self.name}" gettwittertweetdic {self.tgt}: {tweetdic_new}',
+                        self.log_info(
+                            f'"{self.name}" gettwittertweetdic {self.tgt}: {tweetdic_new}',
                         )
                         self.is_firstrun = False
                     else:
@@ -126,14 +117,12 @@ class TwitterTweet(BaseMonitor):
                                 self.push(tweet_id, tweetdic_new)
                         if tweetdic_new:
                             self.tweet_id_old = sorted(tweetdic_new, reverse=True)[0]
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" gettwittertweetdic {self.tgt_restid}',
+                    self.log_success(
+                        f'"{self.name}" gettwittertweetdic {self.tgt_restid}',
                     )
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" gettwittertweetdic {self.tgt_restid}: {e}',
+                    self.log_error(
+                        f'"{self.name}" gettwittertweetdic {self.tgt_restid}: {e}',
                     )
             time.sleep(self.interval)
 
@@ -149,7 +138,4 @@ class TwitterTweet(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 推特{tweet['tweet_type']}】\n内容：{tweet['tweet_text']}\n媒体：{tweet['tweet_media']}\n链接：{tweet['tweet_urls']}\n时间：{datetime.utcfromtimestamp(tweet['tweet_timestamp']):DateTimeFormat}\n网址：https://twitter.com/{self.tgt}/status/{tweet_id}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

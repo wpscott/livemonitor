@@ -1,9 +1,8 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
 
 from .FanboxConstants import Headers
 
-from pathlib import Path
 from datetime import datetime
 import requests
 import time
@@ -85,19 +84,13 @@ class FanboxPost(BaseMonitor):
                         if not self.is_firstrun:
                             self.push(post_id, postdic_new)
                 if self.is_firstrun:
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getfanboxpostdic {self.tgt}: {postdic_new}',
+                    self.log_info(
+                        f'"{self.name}" getfanboxpostdic {self.tgt}: {postdic_new}',
                     )
                     self.is_firstrun = False
-                writelog(
-                    self.logpath, f'[Success] "{self.name}" getfanboxpostdic {self.tgt}'
-                )
+                self.log_success(f'"{self.name}" getfanboxpostdic {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" getfanboxpostdic {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" getfanboxpostdic {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, post_id, postdic):
@@ -109,7 +102,4 @@ class FanboxPost(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 社区帖子】\n标题：{post['post_title']}\n内容：{post['post_text'][0:2500]}\n类型：{post['post_type']}\n档位：{post['post_fee']}\n时间：{datetime.utcfromtimestamp(post['post_publishtimestamp']):DateTimeFormat}\n网址：https://{self.tgt}.fanbox.cc/posts/{post_id}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

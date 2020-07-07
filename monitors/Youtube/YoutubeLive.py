@@ -1,8 +1,6 @@
 from ..base import Monitor
 from ..Utils import (
     timestamp,
-    writelog,
-    Log,
     addpushcolordic,
     getpushcolordic,
     waittime,
@@ -12,7 +10,6 @@ from ..Utils import (
 from .YoutubeConstants import Headers
 
 import json
-from pathlib import Path
 import re
 import requests
 import time
@@ -214,20 +211,13 @@ class YoutubeLive(Monitor):
                         ):
                             self.push(video_id)
                 if self.is_firstrun:
-                    Log(
-                        f'[Info] "{self.name}" getyoutubevideodic {self.tgt}: {videodic_new}',
-                        self.logpath,
+                    self.log_info(
+                        f'"{self.name}" getyoutubevideodic {self.tgt}: {videodic_new}',
                     )
                     self.is_firstrun = False
-                Log(
-                    f'[Success] "{self.name}" getyoutubevideodic {self.tgt}',
-                    self.logpath,
-                )
+                self.log_success(f'"{self.name}" getyoutubevideodic {self.tgt}',)
             except Exception as e:
-                Log(
-                    f'[Error] "{self.name}" getyoutubevideodic {self.tgt}: {e}',
-                    self.logpath,
-                )
+                self.log_error(f'"{self.name}" getyoutubevideodic {self.tgt}: {e}',)
 
             # 更新视频状态
             for video_id in self.videodic:
@@ -242,14 +232,12 @@ class YoutubeLive(Monitor):
                         if self.videodic[video_id]["video_status"] != video_status:
                             self.videodic[video_id]["video_status"] = video_status
                             self.push(video_id)
-                        Log(
-                            f'[Success] "{self.name}" getyoutubevideostatus {video_id}',
-                            self.logpath,
+                        self.log_success(
+                            f'"{self.name}" getyoutubevideostatus {video_id}',
                         )
                     except Exception as e:
-                        Log(
+                        self.log_error(
                             f'[Error] "{self.name}" getvideostatus {video_id}',
-                            self.logpath,
                         )
             time.sleep(self.interval)
 
@@ -260,14 +248,12 @@ class YoutubeLive(Monitor):
                 video_description = YoutubeLive.getyoutubevideodescription(
                     video_id, self.cookies, self.proxy
                 )
-                writelog(
-                    self.logpath,
-                    f'[Success] "{self.name}" getyoutubevideodescription {video_id}',
+                self.log_success(
+                    f'"{self.name}" getyoutubevideodescription {video_id}',
                 )
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" getyoutubevideodescription {video_id}: {e}',
+                self.log_error(
+                    f'"{self.name}" getyoutubevideodescription {video_id}: {e}',
                 )
                 video_description = ""
 
@@ -283,9 +269,8 @@ class YoutubeLive(Monitor):
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} {self.videodic[video_id]['video_type']}{self.videodic[video_id]['video_status']}】\n标题：{self.videodic[video_id]['video_title']}\n时间：{waittime(self.videodic[video_id]['video_timestamp'])}\n网址：https://www.youtube.com/watch?v={video_id}"
                 pushall(pushtext, pushcolor_dic, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )
 
         if self.no_chat != "True":
@@ -312,10 +297,7 @@ class YoutubeLive(Monitor):
                         regen_amount=self.regen_amount,
                     )
                     self.checksubmonitor()
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" startsubmonitor {monitor_name}',
-                    )
+                    self.log_info(f'"{self.name}" startsubmonitor {monitor_name}',)
             # 停止记录弹幕
             else:
                 monitor_name = f"{self.name} - YoutubeChat {video_id}" % (
@@ -328,7 +310,4 @@ class YoutubeLive(Monitor):
                 ):
                     self.submonitorconfig_delmonitor(monitor_name)
                     self.checksubmonitor()
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" stopsubmonitor {monitor_name}',
-                    )
+                    self.log_info(f'"{self.name}" stopsubmonitor {monitor_name}',)

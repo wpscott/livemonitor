@@ -1,9 +1,8 @@
 from ..base import BaseMonitor
-from ..Utils import writelog, getpushcolordic, pushall
+from ..Utils import getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
 
-from pathlib import Path
 import re
 import json
 import requests
@@ -98,19 +97,12 @@ class YoutubeNote(BaseMonitor):
             if not self.token:
                 try:
                     self.token = YoutubeNote.getyoutubetoken(self.cookies, self.proxy)
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getyoutubetoken {self.tgt}: {self.token}',
+                    self.log_info(
+                        f'"{self.name}" getyoutubetoken {self.tgt}: {self.token}',
                     )
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" getyoutubetoken {self.tgt}',
-                    )
+                    self.log_success(f'"{self.name}" getyoutubetoken {self.tgt}',)
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" getyoutubetoken {self.tgt}: {e}',
-                    )
+                    self.log_error(f'"{self.name}" getyoutubetoken {self.tgt}: {e}',)
                     time.sleep(5)
                     continue
 
@@ -123,9 +115,8 @@ class YoutubeNote(BaseMonitor):
                     if self.is_firstrun:
                         if notedic_new:
                             self.note_id_old = sorted(notedic_new, reverse=True)[0]
-                        writelog(
-                            self.logpath,
-                            f'[Info] "{self.name}" getyoutubenotedic {self.tgt}: {notedic_new}',
+                        self.log_info(
+                            f'"{self.name}" getyoutubenotedic {self.tgt}: {notedic_new}',
                         )
                         self.is_firstrun = False
                     else:
@@ -134,15 +125,9 @@ class YoutubeNote(BaseMonitor):
                                 self.push(note_id, notedic_new)
                         if notedic_new:
                             self.note_id_old = sorted(notedic_new, reverse=True)[0]
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" getyoutubenotedic {self.tgt}',
-                    )
+                    self.log_success(f'"{self.name}" getyoutubenotedic {self.tgt}',)
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" getyoutubenotedic {self.tgt}: {e}',
-                    )
+                    self.log_error(f'"{self.name}" getyoutubenotedic {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, note_id, notedic):
@@ -154,7 +139,4 @@ class YoutubeNote(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 订阅通知】\n内容：{notedic[note_id]['note_text']}\n时间：{notedic[note_id]['note_time']}\n网址：https://www.youtube.com/watch?v={notedic[note_id]['note_videoid']}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

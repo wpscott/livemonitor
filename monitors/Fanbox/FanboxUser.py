@@ -1,9 +1,8 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, writelog, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
 
 from .FanboxConstants import Headers
 
-from pathlib import Path
 import requests
 import time
 
@@ -56,9 +55,8 @@ class FanboxUser(BaseMonitor):
                 user_datadic_new = FanboxUser.getfanboxuser(self.tgt, self.proxy)
                 if self.is_firstrun:
                     self.userdata_dic = user_datadic_new
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getfanboxuser {self.tgt}: {user_datadic_new}',
+                    self.log_info(
+                        f'"{self.name}" getfanboxuser {self.tgt}: {user_datadic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -75,13 +73,9 @@ class FanboxUser(BaseMonitor):
 
                     if pushtext_body:
                         self.push(pushtext_body)
-                writelog(
-                    self.logpath, f'[Success] "{self.name}" getfanboxuser {self.tgt}'
-                )
+                self.log_success(f'"{self.name}" getfanboxuser {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath, f'[Error] "{self.name}" getfanboxuser {self.tgt}: {e}'
-                )
+                self.log_error(f'"{self.name}" getfanboxuser {self.tgt}: {e}')
             time.sleep(self.interval)
 
     def push(self, pushtext_body):
@@ -91,8 +85,4 @@ class FanboxUser(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 数据改变】\n{pushtext_body}\n时间：{now():DateTimeFormat}网址：https://{self.tgt}.fanbox.cc/"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}'
-                % (self.name, str(pushcolor_dic), pushtext),
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}')

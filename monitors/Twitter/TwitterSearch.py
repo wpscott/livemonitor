@@ -1,10 +1,9 @@
 from ..base import BaseMonitor
-from ..Utils import writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import addpushcolordic, getpushcolordic, pushall
 from ..Youtube.YoutubeLive import YoutubeLive
 
 from .TwitterConstants import SearchParams, Headers
 
-from pathlib import Path
 from datetime import datetime
 import time
 import requests
@@ -98,9 +97,8 @@ class TwitterSearch(BaseMonitor):
                 if self.is_firstrun:
                     if tweetdic_new:
                         self.tweet_id_old = sorted(tweetdic_new, reverse=True)[0]
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" gettwittersearchdic {self.tgt}: {tweetdic_new}',
+                    self.log_info(
+                        f'"{self.name}" gettwittersearchdic {self.tgt}: {tweetdic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -109,15 +107,9 @@ class TwitterSearch(BaseMonitor):
                             self.push(tweet_id, tweetdic_new)
                     if tweetdic_new:
                         self.tweet_id_old = sorted(tweetdic_new, reverse=True)[0]
-                writelog(
-                    self.logpath,
-                    f'[Success] "{self.name}" gettwittersearchdic {self.tgt}',
-                )
+                self.log_success(f'"{self.name}" gettwittersearchdic {self.tgt}',)
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" gettwittersearchdic {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" gettwittersearchdic {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, tweet_id, tweetdic):
@@ -160,7 +152,6 @@ class TwitterSearch(BaseMonitor):
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 推特】\n内容：{tweet['tweet_text']}\n媒体：{tweet['tweet_media']}\n链接：{tweet['tweet_urls']}\n时间：{datetime.utcfromtimestamp(tweet['tweet_timestamp']):%Y-%m%d %H:%M:%S %Z}\n网址：https://twitter.com/a/status/{tweet_id}"
                 pushall(pushtext, pushcolor_dic, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )

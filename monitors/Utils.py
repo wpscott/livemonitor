@@ -31,7 +31,7 @@ def Log(text: str, path: Path = None):
 
 
 # 检测推送力度
-def getpushcolordic(text, dic) -> dict:
+def getpushcolordic(text: str, dic: dict) -> dict:
     pushcolor_dic = {}
     for word in dic.keys():
         if word in text:
@@ -85,7 +85,7 @@ def modifypause(pause_json: list, type, id, pausepower) -> list:
     return pause_json
 
 
-# 查询或修改暂停力度
+# 查询暂停力度
 def checkpause(pause_json: list, type, id) -> int:
     for pause in pause_json:
         if pause["type"] == type and pause["id"] == id:
@@ -112,7 +112,7 @@ def pushall(pushtext, pushcolor_dic: dict, push_list: list):
 
 
 # 推送
-def pushtoall(pushtext, push: dict):
+def pushtoall(pushtext: str, push: dict):
     url, headers, data = None, None, None
     port, id, bot_id, text = (
         push.get("port", None),
@@ -142,7 +142,7 @@ def pushtoall(pushtext, push: dict):
 
 
 # 推送到url
-def pushtourl(url, headers=None, data=None):
+def pushtourl(url: str, headers: dict = None, data: dict = None):
     # if data is None:
     #     data = {}
     # if headers is None:

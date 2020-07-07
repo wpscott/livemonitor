@@ -1,6 +1,5 @@
-from . import BaseMonitor
+from . import BaseMonitor, LogLevel
 from .. import *
-from ..Utils import Log
 
 import copy
 import time
@@ -125,8 +124,10 @@ class Monitor(BaseMonitor):
                             )
                             self.submonitor_threads[monitor_name] = monitor_thread
                 if self.submonitor_live_cnt > 0 or self.submonitor_cnt > 0:
-                    Log(
-                        f'[Check] "{self.name}" 子线程运行情况：{self.submonitor_live_cnt}/{self.submonitor_cnt}/'
+                    self.log(
+                        LogLevel.Check,
+                        f'"{self.name}" 子线程运行情况：{self.submonitor_live_cnt}/{self.submonitor_cnt}/',
+                        save=False,
                     )
             self.submonitor_checknow = False
 

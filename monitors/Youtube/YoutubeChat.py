@@ -1,11 +1,10 @@
 from ..base import BaseMonitor
-from ..Utils import timestamp, writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, timestamp, addpushcolordic, getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
 
 from datetime import datetime
 import json
-from pathlib import Path
 import re
 import requests
 import time
@@ -146,18 +145,15 @@ class YoutubeChat(BaseMonitor):
                     self.continuation = YoutubeChat.getyoutubechatcontinuation(
                         self.tgt, self.proxy
                     )
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getyoutubechatcontinuation {self.tgt}: {self.continuation}',
+                    self.log_info(
+                        f'"{self.name}" getyoutubechatcontinuation {self.tgt}: {self.continuation}',
                     )
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" getyoutubechatcontinuation {self.tgt}',
+                    self.log_success(
+                        f'"{self.name}" getyoutubechatcontinuation {self.tgt}',
                     )
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" getyoutubechatcontinuation {self.tgt}: {e}',
+                    self.log_error(
+                        f'"{self.name}" getyoutubechatcontinuation {self.tgt}: {e}',
                     )
                     time.sleep(5)
                     continue
@@ -181,16 +177,16 @@ class YoutubeChat(BaseMonitor):
                     if self.interval < 0.1:
                         self.interval = 0.1
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" getyoutubechatlist {self.continuation}: {e}',
+                    self.log_error(
+                        f'"{self.name}" getyoutubechatlist {self.continuation}: {e}',
                     )
             time.sleep(self.interval)
 
     def push(self, chat):
-        writelog(
-            self.chatpath,
+        self.log_info(
             f'{chat["chat_timestamp_float"]}\t{chat["chat_username"]}\t{chat["chat_userchannel"]}\t{chat["chat_type"]}\t{chat["chat_text"]}',
+            output_to_console=False,
+            is_chat=True,
         )
 
         pushcolor_vipdic = getpushcolordic(chat["chat_userchannel"], self.vip_dic)
@@ -200,12 +196,9 @@ class YoutubeChat(BaseMonitor):
         if pushcolor_dic:
             pushcolor_dic = self.punish(pushcolor_dic)
 
-            pushtext = f'【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat["chat_username"]}\n内容：{chat["chat_text"]}\n类型：{chat["chat_type"]}\n时间：{datetime.utcfromtimestamp(chat["chat_timestamp_float"]):"%Y-%m-%d %H:%M:%S %Z"}\n网址：https://www.youtube.com/watch?v={self.tgt}'
+            pushtext = f'【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat["chat_username"]}\n内容：{chat["chat_text"]}\n类型：{chat["chat_type"]}\n时间：{datetime.utcfromtimestamp(chat["chat_timestamp_float"]):DateTimeFormat}\n网址：https://www.youtube.com/watch?v={self.tgt}'
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)
 
     def punish(self, pushcolor_dic):
         # 推送惩罚恢复

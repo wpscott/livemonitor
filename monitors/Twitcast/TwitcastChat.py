@@ -2,14 +2,12 @@ from ..base import BaseMonitor
 from ..Utils import (
     DateTimeFormat,
     timestamp,
-    writelog,
     addpushcolordic,
     getpushcolordic,
     pushall,
 )
 
 from datetime import datetime
-from pathlib import Path
 import requests
 import time
 
@@ -79,16 +77,16 @@ class TwitcastChat(BaseMonitor):
                 if self.interval < 0.1:
                     self.interval = 0.1
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" gettwitcastchatlist {self.chat_id_old}: {e}',
+                self.log_error(
+                    f'"{self.name}" gettwitcastchatlist {self.chat_id_old}: {e}',
                 )
             time.sleep(self.interval)
 
     def push(self, chat):
-        writelog(
-            self.chatpath,
+        self.log_info(
             f"{chat['chat_timestamp_float']}\t{chat['chat_name']}\t{chat['chat_screenname']}\t{chat['chat_text']}",
+            output_to_console=False,
+            is_chat=True,
         )
 
         pushcolor_vipdic = getpushcolordic(chat["chat_screenname"], self.vip_dic)
@@ -100,10 +98,7 @@ class TwitcastChat(BaseMonitor):
 
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat['chat_name']}({chat['chat_screenname']})\n内容：{chat['chat_text']}\n时间：{datetime.utcfromtimestamp(chat['chat_timestamp_float']):DateTimeFormat}\n网址：https://twitcasting.tv/{self.tgt_channel}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)
 
     def punish(self, pushcolor_dic):
         if self.regen != "False":

@@ -1,10 +1,9 @@
 from ..base import BaseMonitor
-from ..Utils import writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import addpushcolordic, getpushcolordic, pushall
 
 from .YoutubeConstants import Headers
 
 import json
-from pathlib import Path
 import re
 import requests
 import time
@@ -73,20 +72,13 @@ class YoutubeCom(BaseMonitor):
                         if not self.is_firstrun:
                             self.push(post_id, postdic_new)
                 if self.is_firstrun:
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getyoutubepostdic {self.tgt}: {postdic_new}',
+                    self.log_info(
+                        f'"{self.name}" getyoutubepostdic {self.tgt}: {postdic_new}',
                     )
                     self.is_firstrun = False
-                writelog(
-                    self.logpath,
-                    f'[Success] "{self.name}" getyoutubepostdic {self.tgt}',
-                )
+                self.log_success(f'"{self.name}" getyoutubepostdic {self.tgt}',)
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" getyoutubepostdic {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" getyoutubepostdic {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, post_id, postdic):
@@ -100,7 +92,4 @@ class YoutubeCom(BaseMonitor):
         if pushcolor_dic:
             pushtext = f"【{self.__class__.__name__} {self.tgt_name} 社区帖子】\n内容：{postdic[post_id]['post_text'][0:3000]}\n时间：{postdic[post_id]['post_time']}\n网址：https://www.youtube.com/post/{post_id}"
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

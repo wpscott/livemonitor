@@ -2,13 +2,11 @@ from ..base import Monitor
 from ..Utils import (
     DateTimeFormat,
     now,
-    writelog,
     addpushcolordic,
     getpushcolordic,
     pushall,
 )
 
-from pathlib import Path
 from urllib.parse import unquote
 import time
 import requests
@@ -77,14 +75,9 @@ class TwitcastLive(Monitor):
                     ):
                         self.livedic[live_id] = livedic_new[live_id]
                         self.push(live_id)
-                writelog(
-                    self.logpath, f'[Success] "{self.name}" gettwitcastlive {self.tgt}'
-                )
+                self.log_success(f'"{self.name}" gettwitcastlive {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" gettwitcastlive {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" gettwitcastlive {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, live_id):
@@ -97,9 +90,8 @@ class TwitcastLive(Monitor):
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播{live['live_status']}】\n标题：{live['live_title']}\n时间：{now():DateTimeFormat}\n网址：https://twitcasting.tv/{self.tgt}"
                 pushall(pushtext, pushcolor_dic, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )
 
         if self.no_chat != "True":
@@ -122,10 +114,7 @@ class TwitcastLive(Monitor):
                         regen_amount=self.regen_amount,
                     )
                     self.checksubmonitor()
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" startsubmonitor {monitor_name}',
-                    )
+                    self.log_info(f'"{self.name}" startsubmonitor {monitor_name}',)
             # 停止记录弹幕
             else:
                 if (
@@ -134,7 +123,4 @@ class TwitcastLive(Monitor):
                 ):
                     self.submonitorconfig_delmonitor(monitor_name)
                     self.checksubmonitor()
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" stopsubmonitor {monitor_name}',
-                    )
+                    self.log_info(f'"{self.name}" stopsubmonitor {monitor_name}',)

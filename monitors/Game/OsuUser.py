@@ -1,8 +1,7 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, writelog, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
 
 from datetime import datetime
-from pathlib import Path
 import requests
 import time
 import json
@@ -100,9 +99,8 @@ class OsuUser(BaseMonitor):
                         self.lastgameid = sorted(
                             user_datadic_new["user_gamedic"], reverse=True
                         )[0]
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getosuuser {self.tgt}: {user_datadic_new}',
+                    self.log_info(
+                        f'"{self.name}" getosuuser {self.tgt}: {user_datadic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -133,11 +131,9 @@ class OsuUser(BaseMonitor):
                     if pushtext_body:
                         pushtext = f"【{self.__class__.__name__} {self.tgt_name} 数据改变】\n{pushtext_body}\n时间：{now():DateTimeFormat}网址：https://osu.ppy.sh/users/{self.tgt}"
                         self.push(pushtext)
-                writelog(self.logpath, f'[Success] "{self.name}" getosuuser {self.tgt}')
+                self.log_success(f'"{self.name}" getosuuser {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath, f'[Error] "{self.name}" getosuuser {self.tgt}: {e}'
-                )
+                self.log_error(f'"{self.name}" getosuuser {self.tgt}: {e}')
             time.sleep(self.interval)
 
     def push(self, pushtext):
@@ -146,7 +142,4 @@ class OsuUser(BaseMonitor):
 
         if pushcolor_dic:
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

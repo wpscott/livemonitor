@@ -1,8 +1,7 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, writelog, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
 
 from datetime import datetime
-from pathlib import Path
 import requests
 import time
 from bs4 import BeautifulSoup as bs
@@ -116,9 +115,8 @@ class LolUser(BaseMonitor):
                         self.lastgametimestamp = sorted(
                             user_datadic_new["user_gamedic"], reverse=True
                         )[0]
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getloluser {self.tgt}: {user_datadic_new}',
+                    self.log_info(
+                        f'"{self.name}" getloluser {self.tgt}: {user_datadic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -146,7 +144,7 @@ class LolUser(BaseMonitor):
                         # 其他 不推送
                         else:
                             self.userdata_dic[key] = user_datadic_new[key]
-                writelog(self.logpath, f'[Success] "{self.name}" getloluser {self.tgt}')
+                self.log_success(f'"{self.name}" getloluser {self.tgt}')
 
                 # 更新信息 最短间隔120秒
                 if (
@@ -162,19 +160,15 @@ class LolUser(BaseMonitor):
                         LolUser.renewloluser(
                             self.userdata_dic["user_id"], self.tgt_region, self.proxy
                         )
-                        writelog(
-                            self.logpath,
-                            f'[Success] "{self.name}" renewloluser {self.userdata_dic["user_id"]}',
+                        self.log_success(
+                            f'"{self.name}" renewloluser {self.userdata_dic["user_id"]}',
                         )
                     except Exception as e:
-                        writelog(
-                            self.logpath,
-                            f'[Error] "{self.name}" renewloluser {self.userdata_dic["user_id"]}: {e}',
+                        self.log_error(
+                            f'"{self.name}" renewloluser {self.userdata_dic["user_id"]}: {e}',
                         )
             except Exception as e:
-                writelog(
-                    self.logpath, f'[Error] "{self.name}" getloluser {self.tgt}: {e}'
-                )
+                self.log_error(f'"{self.name}" getloluser {self.tgt}: {e}')
             time.sleep(self.interval)
 
     def push(self, pushtext):
@@ -183,7 +177,4 @@ class LolUser(BaseMonitor):
 
         if pushcolor_dic:
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

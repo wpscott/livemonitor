@@ -1,7 +1,6 @@
 from ..base import BaseMonitor
-from ..Utils import DateTimeFormat, now, writelog, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, now, getpushcolordic, pushall
 
-from pathlib import Path
 import requests
 import time
 from bs4 import BeautifulSoup as bs
@@ -74,9 +73,8 @@ class SteamUser(BaseMonitor):
                         self.push(pushtext)
 
                     self.userdata_dic = user_datadic_new
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getsteamuser {self.tgt}: {user_datadic_new}',
+                    self.log_info(
+                        f'"{self.name}" getsteamuser {self.tgt}: {user_datadic_new}',
                     )
                     self.is_firstrun = False
                 else:
@@ -94,13 +92,9 @@ class SteamUser(BaseMonitor):
                     if pushtext_body:
                         pushtext = f"【{self.__class__.__name__} {self.tgt_name} 数据改变】\n{pushtext_body}时间：{now():DateTimeFormat}\n网址：https://steamcommunity.com/profiles/{self.tgt}"
                         self.push(pushtext)
-                writelog(
-                    self.logpath, f'[Success] "{self.name}" getsteamuser {self.tgt}'
-                )
+                self.log_success(f'"{self.name}" getsteamuser {self.tgt}')
             except Exception as e:
-                writelog(
-                    self.logpath, f'[Error] "{self.name}" getsteamuser {self.tgt}: {e}'
-                )
+                self.log_error(f'"{self.name}" getsteamuser {self.tgt}: {e}')
             time.sleep(self.interval)
 
     def push(self, pushtext):
@@ -109,7 +103,4 @@ class SteamUser(BaseMonitor):
 
         if pushcolor_dic:
             pushall(pushtext, pushcolor_dic, self.push_list)
-            writelog(
-                self.logpath,
-                f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
-            )
+            self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)

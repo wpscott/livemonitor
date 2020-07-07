@@ -1,8 +1,7 @@
 from ..base import Monitor
-from ..Utils import DateTimeFormat, writelog, addpushcolordic, getpushcolordic, pushall
+from ..Utils import DateTimeFormat, addpushcolordic, getpushcolordic, pushall
 
 from datetime import datetime
-from pathlib import Path
 import requests
 import time
 
@@ -71,9 +70,7 @@ class BilibiliLive(Monitor):
                     simple_mode=self.simple_mode,
                 )
                 self.checksubmonitor()
-            writelog(
-                self.logpath, f'[Info] "{self.name}" startsubmonitor {monitor_name}'
-            )
+            self.log_info(f'"{self.name}" startsubmonitor {monitor_name}')
 
         while not self.stop_now:
             # 获取直播状态
@@ -98,15 +95,9 @@ class BilibiliLive(Monitor):
                     ):
                         self.livedic[live_id] = livedic_new[live_id]
                         self.push(live_id)
-                writelog(
-                    self.logpath,
-                    f'[Success] "{self.name}" getbilibililivedic {self.tgt}',
-                )
+                self.log_success(f'"{self.name}" getbilibililivedic {self.tgt}',)
             except Exception as e:
-                writelog(
-                    self.logpath,
-                    f'[Error] "{self.name}" getbilibililivedic {self.tgt}: {e}',
-                )
+                self.log_error(f'"{self.name}" getbilibililivedic {self.tgt}: {e}',)
             time.sleep(self.interval)
 
     def push(self, live_id):
@@ -119,9 +110,8 @@ class BilibiliLive(Monitor):
             if pushcolor_dic:
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播{live['live_status']}】\n标题：{live['live_title']}\n时间：{datetime.utcfromtimestamp(live_id):DateTimeFormat}\n网址：https://live.bilibili.com/{self.tgt}"
                 pushall(pushtext, pushcolor_dic, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )
 
         if self.offline_chat != "True" and self.no_chat != "True":
@@ -146,9 +136,7 @@ class BilibiliLive(Monitor):
                         regen_amount=self.regen_amount,
                     )
                     self.checksubmonitor()
-                writelog(
-                    self.logpath, '[Info] "{self.name}" startsubmonitor {monitor_name}'
-                )
+                self.log_info('"{self.name}" startsubmonitor {monitor_name}')
             # 停止记录弹幕
             else:
                 if (
@@ -157,7 +145,4 @@ class BilibiliLive(Monitor):
                 ):
                     self.submonitorconfig_delmonitor(monitor_name)
                     self.checksubmonitor()
-                    writelog(
-                        self.logpath,
-                        '[Info] "{self.name}" stopsubmonitor {monitor_name}',
-                    )
+                    self.log_info('"{self.name}" stopsubmonitor {monitor_name}',)

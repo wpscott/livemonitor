@@ -1,15 +1,13 @@
-from ..base import BaseMonitor
+from ..base import BaseMonitor, LogLevel
 from ..Utils import (
     DateTimeFormat,
     timestamp,
-    writelog,
     addpushcolordic,
     getpushcolordic,
     pushall,
 )
 
 from datetime import datetime
-from pathlib import Path
 import requests
 import time
 import json
@@ -197,7 +195,7 @@ class BilibiliChat(BaseMonitor):
             ).json()["data"]["token"],
         }
         self.ws.send(self.getpacket(auth_data, 7))
-        writelog(self.logpath, f'[Start] "{self.name}" connect {self.tgt}')
+        self.log(LogLevel.Start, f'"{self.name}" connect {self.tgt}')
 
     def on_message(self, message):
         packetlist = self.prasepacket(message)
@@ -205,30 +203,29 @@ class BilibiliChat(BaseMonitor):
         for packet in packetlist:
             if packet["operation"] == 8:
                 self.is_linked = True
-                writelog(self.logpath, f'[Success] "{self.name}" connected {self.tgt}')
+                self.log_success(f'"{self.name}" connected {self.tgt}')
 
             if packet["operation"] == 5:
                 if isinstance(packet["data"], dict):
                     self.parsedanmu(packet["data"])
 
     def on_error(self, error):
-        writelog(self.logpath, f'[Error] "{self.name}" error {self.tgt}: {error}')
+        self.log_error(f'"{self.name}" error {self.tgt}: {error}')
 
     def on_close(self):
         # 推送剩余的弹幕
         if self.simple_mode != "False":
             if self.pushtext_old:
                 pushall(self.pushtext_old, self.pushcolor_dic_old, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
                 )
 
                 self.pushtext_old = ""
                 # self.pushtext_old = "【%s %s】\n" % (self.__class__.__name__, self.tgt_name)
 
         self.is_linked = False
-        writelog(self.logpath, f'[Stop] "{self.name}" disconnect {self.tgt}')
+        self.log(LogLevel.Stop, f'"{self.name}" disconnect {self.tgt}')
 
     def run(self):
         # 启动heartbeat线程
@@ -256,25 +253,23 @@ class BilibiliChat(BaseMonitor):
                 try:
                     self.hostlist = BilibiliChat.getbilibilichathostlist(self.proxy)
                     self.hostcount = 0
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" getbilibilichathostlist {self.tgt}: {self.hostlist}',
+                    self.log_info(
+                        f'"{self.name}" getbilibilichathostlist {self.tgt}: {self.hostlist}',
                     )
-                    writelog(
-                        self.logpath,
-                        f'[Success] "{self.name}" getbilibilichathostlist {self.tgt}',
+                    self.log_success(
+                        f'"{self.name}" getbilibilichathostlist {self.tgt}',
                     )
                 except Exception as e:
-                    writelog(
-                        self.logpath,
-                        f'[Error] "{self.name}" getbilibilichathostlist {self.tgt}: {e}',
+                    self.log_error(
+                        f'"{self.name}" getbilibilichathostlist {self.tgt}: {e}',
                     )
                     time.sleep(5)
 
     def push(self, chat):
-        writelog(
-            self.chatpath,
+        self.log_info(
             f'{chat["chat_timestamp_float"]}\t{chat["chat_username"]}\t{chat["chat_userid"]}\t{chat["chat_type"]}\t{chat["chat_text"]}',
+            output_to_console=False,
+            is_chat=True,
         )
 
         pushcolor_vipdic = getpushcolordic(chat["chat_userid"], self.vip_dic)
@@ -287,9 +282,8 @@ class BilibiliChat(BaseMonitor):
             if self.simple_mode == "False":
                 pushtext = f"【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat['chat_username']}({chat['chat_userid']})\n内容：{chat['chat_text']}\n类型：{chat['chat_type']}\n时间：{datetime.utcfromtimestamp(chat['chat_timestamp_float']):DateTimeFormat}\n网址：https://live.bilibili.com/{self.tgt}"
                 pushall(pushtext, pushcolor_dic, self.push_list)
-                writelog(
-                    self.logpath,
-                    f'[Info] "{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
+                self.log_info(
+                    f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',
                 )
             else:
                 self.pushcount += 1
@@ -303,9 +297,8 @@ class BilibiliChat(BaseMonitor):
 
                 if self.pushcount % self.simple_mode == 0:
                     pushall(self.pushtext_old, self.pushcolor_dic_old, self.push_list)
-                    writelog(
-                        self.logpath,
-                        f'[Info] "{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
+                    self.log_info(
+                        f'"{self.name}" pushall {str(self.pushcolor_dic_old)}\n{self.pushtext_old}',
                     )
                     self.pushtext_old = ""
                     # self.pushtext_old = "【%s %s】\n" % (self.__class__.__name__, self.tgt_name)
