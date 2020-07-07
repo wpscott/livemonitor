@@ -65,10 +65,10 @@ class BilibiliChat(BaseMonitor):
         self.hostcount = 1
         self.ws = False
         self.is_linked = False
-        self.pushpunish = {}
-        self.regen_time = 0
-        self.regen = getattr(self, "regen", "False")
-        self.regen_amount = getattr(self, "regen_amount", 1)
+        # self.pushpunish = {}
+        # self.regen_time = 0
+        # self.regen = getattr(self, "regen", "False")
+        # self.regen_amount = getattr(self, "regen_amount", 1)
 
     def getpacket(self, data, operation):
         """

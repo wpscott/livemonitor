@@ -46,11 +46,11 @@ class TwitcastChat(BaseMonitor):
         self.initialize_punishment()
 
         self.chat_id_old = 0
-        self.pushpunish = {}
-        self.regen_time = 0
+        # self.pushpunish = {}
+        # self.regen_time = 0
         self.tgt_channel = getattr(self, "tgt_channel", "")
-        self.regen = getattr(self, "regen", "False")
-        self.regen_amount = getattr(self, "regen_amount", 1)
+        # self.regen = getattr(self, "regen", "False")
+        # self.regen_amount = getattr(self, "regen_amount", 1)
 
     def run(self):
         while not self.stop_now:
