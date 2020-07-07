@@ -127,7 +127,9 @@ class YoutubeChat(BaseMonitor):
         # self.chatpah = logpath / f"{self.name}_chat.txt"
         # if not logpath.exists():
         #     logpath.mkdir(parents=True)
-        super().initialize_log(self.__class__.__name__, True, True)
+        self.initialize_log(self.__class__.__name__, True, True)
+
+        self.initialize_punishment()
 
         # continuation为字符
         self.continuation = False
@@ -194,44 +196,8 @@ class YoutubeChat(BaseMonitor):
         pushcolor_dic = addpushcolordic(pushcolor_vipdic, pushcolor_worddic)
 
         if pushcolor_dic:
-            pushcolor_dic = self.punish(pushcolor_dic)
+            pushcolor_dic = self.punish(self.tgt_channel, pushcolor_dic)
 
             pushtext = f'【{self.__class__.__name__} {self.tgt_name} 直播评论】\n用户：{chat["chat_username"]}\n内容：{chat["chat_text"]}\n类型：{chat["chat_type"]}\n时间：{datetime.utcfromtimestamp(chat["chat_timestamp_float"]):DateTimeFormat}\n网址：https://www.youtube.com/watch?v={self.tgt}'
             pushall(pushtext, pushcolor_dic, self.push_list)
             self.log_info(f'"{self.name}" pushall {str(pushcolor_dic)}\n{pushtext}',)
-
-    def punish(self, pushcolor_dic):
-        # 推送惩罚恢复
-        if self.regen != "False":
-            time_now = timestamp()
-            regen_amt = int(
-                int((time_now - self.regen_time) / float(self.regen))
-                * float(self.regen_amount)
-            )
-            if regen_amt:
-                self.regen_time = time_now
-                for color in list(self.pushpunish):
-                    if self.pushpunish[color] > regen_amt:
-                        self.pushpunish[color] -= regen_amt
-                    else:
-                        self.pushpunish.pop(color)
-
-        # 去除来源频道的相关权重
-        if self.tgt_channel in self.vip_dic:
-            for color in self.vip_dic[self.tgt_channel]:
-                if color in pushcolor_dic and "vip" not in color:
-                    pushcolor_dic[color] -= self.vip_dic[self.tgt_channel][color]
-
-        # 只对pushcolor_dic存在的键进行修改，不同于addpushcolordic
-        for color in self.pushpunish:
-            if color in pushcolor_dic and "vip" not in color:
-                pushcolor_dic[color] -= self.pushpunish[color]
-
-        # 更新pushpunish
-        for color in pushcolor_dic:
-            if pushcolor_dic[color] > 0 and "vip" not in color:
-                if color in self.pushpunish:
-                    self.pushpunish[color] += 1
-                else:
-                    self.pushpunish[color] = 1
-        return pushcolor_dic

@@ -53,7 +53,7 @@ class YoutubeCom(BaseMonitor):
         # self.logpath = logpath / f"{self.name}.txt"
         # if not logpath.exists():
         #     logpath.mkdir(parents=True)
-        super().initialize_log(self.__class__.__name__, False, False)
+        self.initialize_log(self.__class__.__name__, False, False)
 
         self.is_firstrun = True
         # post_id为字符

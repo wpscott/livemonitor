@@ -38,7 +38,7 @@ class TwitcastLive(Monitor):
         # self.logpath = logpath / f"{self.name}.txt"
         # if not logpath.exists():
         #     logpath.mkdir(parents=True)
-        super().initialize_log(self.__class__.__name__, False, False)
+        self.initialize_log(self.__class__.__name__, False, False)
 
         # 重新设置submonitorconfig用于启动子线程，并添加频道id信息到子进程使用的cfg中
         self.submonitorconfig_setname("twitcastchat_submonitor_cfg")

@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import threading
 import requests
 import time
-from pathlib import Path
 from urllib.parse import quote
 
 DateTimeFormat = "%Y-%m-%d %H:%M:%S %Z"
@@ -15,20 +14,6 @@ def now() -> datetime:
 
 def timestamp() -> float:
     return now().timestamp()
-
-
-def writelog(logpath: Path, text: str):
-    Log(text, logpath)
-
-
-def Log(text: str, path: Path = None):
-    log = f"[{now():%Y-%m-%d %H:%M:%S}] {text}"
-    print(log)
-    if path is not None:
-        with open(path, "a", encoding="utf-8") as logs:
-            logs.write(log)
-            log.write("\r\n")
-
 
 # 检测推送力度
 def getpushcolordic(text: str, dic: dict) -> dict:

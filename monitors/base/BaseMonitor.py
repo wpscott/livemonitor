@@ -6,7 +6,7 @@ import json
 from urllib.parse import quote
 import requests
 
-from ..Utils import now
+from ..Utils import now, timestamp
 
 # 仅从cfg和cfg_mod中获取参数，不会启动子监视器
 class BaseMonitor(threading.Thread):
@@ -42,6 +42,47 @@ class BaseMonitor(threading.Thread):
             self.chatpath = logpath / f"{self.name}_chat.txt"
         if not logpath.exists():
             logpath.mkdir(parents=True)
+    
+    def initialize_punishment(self):
+        self.regen = getattr(self, "regen", "False")
+        self.regen_amount = getattr(self, "regen_amount", 1)
+        self.regen_time = 0
+    
+    def punish(self, key: str, pushcolor_dic: dict) -> dict:
+        # 推送惩罚恢复
+        if self.regen != "False":
+            time_now = timestamp()
+            regen_amt = int(
+                int((time_now - self.regen_time) / float(self.regen))
+                * float(self.regen_amount)
+            )
+            if regen_amt:
+                self.regen_time = time_now
+                for color in list(self.pushpunish):
+                    if self.pushpunish[color] > regen_amt:
+                        self.pushpunish[color] -= regen_amt
+                    else:
+                        self.pushpunish.pop(color)
+
+        # 去除来源频道的相关权重
+        if key in self.vip_dic:
+            for color in self.vip_dic[key]:
+                if color in pushcolor_dic and "vip" not in color:
+                    pushcolor_dic[color] -= self.vip_dic[key][color]
+
+        # 只对pushcolor_dic存在的键进行修改，不同于addpushcolordic
+        for color in self.pushpunish:
+            if color in pushcolor_dic and "vip" not in color:
+                pushcolor_dic[color] -= self.pushpunish[color]
+
+        # 更新pushpunish
+        for color in pushcolor_dic:
+            if pushcolor_dic[color] > 0 and "vip" not in color:
+                if color in self.pushpunish:
+                    self.pushpunish[color] += 1
+                else:
+                    self.pushpunish[color] = 1
+        return pushcolor_dic
 
     def checksubmonitor(self):
         pass
@@ -74,6 +115,38 @@ class BaseMonitor(threading.Thread):
             if pause["type"] == type and pause["id"] == id:
                 return pause["pausepower"]
         return None
+
+    @staticmethod
+    # 检测推送力度
+    def getpushcolordic(text: str, dic: dict) -> dict:
+        pushcolor_dic = {}
+        for word in dic.keys():
+            if word in text:
+                for color in dic[word]:
+                    if color in pushcolor_dic:
+                        pushcolor_dic[color] += int(dic[word][color])
+                    else:
+                        pushcolor_dic[color] = int(dic[word][color])
+        return pushcolor_dic
+
+    @staticmethod
+    # 求和推送力度，注意传入subdics必须为tuple类型
+    def addpushcolordic(*adddics, **kwargs) -> dict:
+        pushcolor_dic = {}
+        for adddic in adddics:
+            for color in adddic.keys():
+                if color in pushcolor_dic:
+                    pushcolor_dic[color] += adddic[color]
+                else:
+                    pushcolor_dic[color] = adddic[color]
+        if "subdics" in kwargs:
+            for subdic in kwargs["subdics"]:
+                for color in subdic.keys():
+                    if color in pushcolor_dic:
+                        pushcolor_dic[color] -= subdic[color]
+                    else:
+                        pushcolor_dic[color] = -subdic[color]
+        return pushcolor_dic
 
     # 判断是否推送
     def pushall(self, pushtext, pushcolor_dic: dict, push_list: list):
